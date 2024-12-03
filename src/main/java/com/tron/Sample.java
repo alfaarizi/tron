@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author zizi
  */
-public class Assignment3 {
+public class Sample {
 
         public static void main(String[] args) {
         try {
@@ -31,33 +31,34 @@ public class Assignment3 {
             Player player2 = new Player("farah","@Farah", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), Player.PasswordType.PLAIN);
             Player player3 = new Player("root","@rootpass", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), Player.PasswordType.PLAIN);
             HighScoreDB database1 = new HighScoreDB(tronGame);
-            HighScoreDB database2 = new HighScoreDB(sampleGame);
-            
-            List<HighScore> highscores = List.of(
-                    new HighScore(player1, 1),
-                    new HighScore(player1, 0),
-                    new HighScore(player1, 0),
-                    new HighScore(player3, 1),
-                    new HighScore(player3, 0),
-                    new HighScore(player3, 1),
-                    new HighScore(player2, 1),
-                    new HighScore(player2, 1),
-                    new HighScore(player1, 1),
-                    new HighScore(player1, 1),
-                    new HighScore(player1, 1),
-                    new HighScore(player2, 0),
-                    new HighScore(player2, 1)
-            );
-            
-            for(HighScore highScore: highscores){
-                database1.putHighScore(highScore);
-                database2.putHighScore(highScore);
-                System.out.println("pass:" + highScore);
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e){}
-            }
-            
+//            HighScoreDB database2 = new HighScoreDB(sampleGame);
+//            
+//            List<HighScore> highscores = List.of(
+//                    new HighScore(player1, 1),
+//                    new HighScore(player1, 0),
+//                    new HighScore(player1, 0),
+//                    new HighScore(player3, 1),
+//                    new HighScore(player3, 0),
+//                    new HighScore(player3, 1),
+//                    new HighScore(player2, 1),
+//                    new HighScore(player2, 1),
+//                    new HighScore(player1, 1),
+//                    new HighScore(player1, 1),
+//                    new HighScore(player1, 1),
+//                    new HighScore(player2, 0),
+//                    new HighScore(player2, 1)
+//            );
+//            
+//            for(HighScore highScore: highscores){
+//                database1.putHighScore(highScore);
+//                database2.putHighScore(highScore);
+//                System.out.println("pass:" + highScore);
+//                try {
+//                    Thread.sleep(3000);
+//                } catch (InterruptedException e){}
+//            }
+
+              System.out.println("pass");
         } catch (SQLException e){
             System.out.println(e + "");
         }
