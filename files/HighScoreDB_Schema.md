@@ -1,5 +1,6 @@
 -- HIGHSCORE_DB SCHEMA
 
+```sql
 CREATE TABLE Player (
     playerno INT AUTO_INCREMENT,
     pname VARCHAR(30) NOT NULL,
@@ -35,3 +36,4 @@ CREATE TABLE Leaderboard (
     FOREIGN KEY (playerno) REFERENCES Player(playerno) ON DELETE CASCADE,
     FOREIGN KEY (gameid) REFERENCES Game(gameid) ON DELETE CASCADE
 );
+```
