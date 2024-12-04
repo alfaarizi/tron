@@ -31,9 +31,10 @@ import java.util.ArrayList;
  */
 public class HighScoreDB {
     
-    private final Connection connection;
-    
+    private final GameEntity game; 
     private final int gameId; 
+    
+    private final Connection connection;
     private final Timestamp start_time;
     private Timestamp end_time;
     
@@ -42,13 +43,15 @@ public class HighScoreDB {
         connectionProps.put("user", "root");
         connectionProps.put("password", "AlFarizi");
         connectionProps.put("serverTimezone", "UTC");
-        
+
         String dbURL = "jdbc:mysql://localhost:3306/highscore_db";
         this.connection = DriverManager.getConnection(dbURL, connectionProps);
-            
-        this.gameId = insertGame(game);
+        
+        this.game = game;
+        this.gameId = insertGame(this.game);
         this.start_time = Timestamp.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());
         this.end_time = null;
+
     }
     
     public void putHighScore(HighScoreEntity highScore) {
@@ -98,11 +101,14 @@ public class HighScoreDB {
         PlayerEntity player = null;
         
         String query = """
-                       SELECT phash, registerdate FROM Player WHERE pname=?
+                       SELECT phash, registerdate 
+                       FROM Player p, Sessions s 
+                       WHERE p.playerno=s.playerno AND gameid=? AND pname=?
                        """;
-        
+
         try (PreparedStatement playerQuery = connection.prepareStatement(query)){
-            playerQuery.setString(1, name);
+            playerQuery.setInt(1, this.gameId);
+            playerQuery.setString(2, name);
             try (ResultSet result = playerQuery.executeQuery()){
                 while (result.next()) {
                     String passwordHash = result.getString("phash");

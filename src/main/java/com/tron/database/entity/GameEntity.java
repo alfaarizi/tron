@@ -6,20 +6,21 @@ package com.tron.database.entity;
 
 import java.sql.Date;
 
+
 /**
  *
  * @author zizi
  */
 public class GameEntity {
     
-    private String name;
-    private Date releaseDate;
+    private final String name;
+    private final Date releaseDate;
     
     public GameEntity(String name, Date releaseDate){
         this.name = name;
         this.releaseDate = releaseDate;
     }
-    
+
     public String getName() {
         return this.name;
     }

@@ -8,14 +8,10 @@ package com.tron.battle.model;
  *
  * @author zizi
  */
-public class Tron {
-// a.k.a Knight (position, color, id)
-//    private Point position;
-//    private final Color color;
-//    private final String id;
-//    private int score;
+public class Movement {
     
-    public Tron(){
+    public Movement(){
         
     }
+    
 }

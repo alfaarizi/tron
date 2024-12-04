@@ -13,18 +13,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  */
 public class PlayerEntity {
     
-    private String name;
-    private String passwordHash;
-    private Date registerDate;
-    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    
+    private final String name;
+    private final String passwordHash;
+    private final Date registerDate;
     public static enum PasswordType { PLAIN, HASHED };
+    
+    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     
     public PlayerEntity(String name, String password, Date registerDate, PasswordType passwordType){
         this.name = name;
         this.registerDate = registerDate;
-        if (passwordType == PasswordType.PLAIN) this.passwordHash = encoder.encode(password);
-        else this.passwordHash = password;
+        if (passwordType == PasswordType.PLAIN) {
+            this.passwordHash = encoder.encode(password);
+        } else {
+            this.passwordHash = password;
+        }
     }
     
     public String getName(){
@@ -38,7 +41,6 @@ public class PlayerEntity {
     public Date getRegisterDate(){
         return this.registerDate;
     }
-    
 
     public boolean checkPassword(String password){
         return encoder.matches(password, this.passwordHash);

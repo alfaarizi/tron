@@ -4,8 +4,6 @@
  */
 package com.tron.database.entity;
 
-import java.sql.Date;
-
 /**
  *
  * @author zizi
