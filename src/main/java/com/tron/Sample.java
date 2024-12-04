@@ -5,9 +5,9 @@
 package com.tron;
 
 import com.tron.database.HighScoreDB;
-import com.tron.database.entity.Game;
-import com.tron.database.entity.HighScore;
-import com.tron.database.entity.Player;
+import com.tron.database.entity.GameEntity;
+import com.tron.database.entity.HighScoreEntity;
+import com.tron.database.entity.PlayerEntity;
 
 import java.sql.SQLException;
 
@@ -24,39 +24,39 @@ public class Sample {
 
         public static void main(String[] args) {
         try {
-            Game tronGame = new Game("Tron", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()));
-            Game sampleGame = new Game("Sample", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()));
+            GameEntity tronGame = new GameEntity("Tron", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()));
+            GameEntity sampleGame = new GameEntity("Sample", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()));
             
-            Player player1 = new Player("alfaarizi","AlFarizi", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), Player.PasswordType.PLAIN);
-            Player player2 = new Player("farah","@Farah", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), Player.PasswordType.PLAIN);
-            Player player3 = new Player("root","@rootpass", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), Player.PasswordType.PLAIN);
+            PlayerEntity player1 = new PlayerEntity("alfaarizi","samplepassword", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), PlayerEntity.PasswordType.PLAIN);
+            PlayerEntity player2 = new PlayerEntity("farah","@fefefe", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), PlayerEntity.PasswordType.PLAIN);
+            PlayerEntity player3 = new PlayerEntity("root","@rootpass", Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), PlayerEntity.PasswordType.PLAIN);
             HighScoreDB database1 = new HighScoreDB(tronGame);
-//            HighScoreDB database2 = new HighScoreDB(sampleGame);
-//            
-//            List<HighScore> highscores = List.of(
-//                    new HighScore(player1, 1),
-//                    new HighScore(player1, 0),
-//                    new HighScore(player1, 0),
-//                    new HighScore(player3, 1),
-//                    new HighScore(player3, 0),
-//                    new HighScore(player3, 1),
-//                    new HighScore(player2, 1),
-//                    new HighScore(player2, 1),
-//                    new HighScore(player1, 1),
-//                    new HighScore(player1, 1),
-//                    new HighScore(player1, 1),
-//                    new HighScore(player2, 0),
-//                    new HighScore(player2, 1)
-//            );
-//            
-//            for(HighScore highScore: highscores){
-//                database1.putHighScore(highScore);
-//                database2.putHighScore(highScore);
-//                System.out.println("pass:" + highScore);
-//                try {
-//                    Thread.sleep(3000);
-//                } catch (InterruptedException e){}
-//            }
+            HighScoreDB database2 = new HighScoreDB(sampleGame);
+            
+            List<HighScoreEntity> highscores = List.of(
+                    new HighScoreEntity(player1, 1),
+                    new HighScoreEntity(player1, 0),
+                    new HighScoreEntity(player1, 0),
+                    new HighScoreEntity(player3, 1),
+                    new HighScoreEntity(player3, 0),
+                    new HighScoreEntity(player3, 1),
+                    new HighScoreEntity(player2, 1),
+                    new HighScoreEntity(player2, 1),
+                    new HighScoreEntity(player1, 1),
+                    new HighScoreEntity(player1, 1),
+                    new HighScoreEntity(player1, 1),
+                    new HighScoreEntity(player2, 0),
+                    new HighScoreEntity(player2, 1)
+            );
+            
+            for(HighScoreEntity highScore: highscores){
+                database1.putHighScore(highScore);
+                database2.putHighScore(highScore);
+                System.out.println("pass:" + highScore);
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e){}
+            }
 
               System.out.println("pass");
         } catch (SQLException e){

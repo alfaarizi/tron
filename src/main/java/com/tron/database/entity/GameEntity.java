@@ -10,12 +10,12 @@ import java.sql.Date;
  *
  * @author zizi
  */
-public class Game {
+public class GameEntity {
     
     private String name;
     private Date releaseDate;
     
-    public Game(String name, Date releaseDate){
+    public GameEntity(String name, Date releaseDate){
         this.name = name;
         this.releaseDate = releaseDate;
     }

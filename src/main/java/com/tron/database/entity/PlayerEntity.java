@@ -11,7 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  *
  * @author zizi
  */
-public class Player {
+public class PlayerEntity {
     
     private String name;
     private String passwordHash;
@@ -20,7 +20,7 @@ public class Player {
     
     public static enum PasswordType { PLAIN, HASHED };
     
-    public Player(String name, String password, Date registerDate, PasswordType passwordType){
+    public PlayerEntity(String name, String password, Date registerDate, PasswordType passwordType){
         this.name = name;
         this.registerDate = registerDate;
         if (passwordType == PasswordType.PLAIN) this.passwordHash = encoder.encode(password);

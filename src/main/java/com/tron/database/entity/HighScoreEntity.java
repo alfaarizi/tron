@@ -10,17 +10,17 @@ import java.sql.Date;
  *
  * @author zizi
  */
-public class HighScore {
+public class HighScoreEntity {
     
-    private final Player player;
+    private final PlayerEntity player;
     private final int score;
     
-    public HighScore(Player player, int score) {
+    public HighScoreEntity(PlayerEntity player, int score) {
         this.player = player;
         this.score = score;
     }
 
-    public Player getPlayer() {
+    public PlayerEntity getPlayer() {
         return this.player;
     }
 

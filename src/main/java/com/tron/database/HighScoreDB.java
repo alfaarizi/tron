@@ -4,9 +4,9 @@
  */
 package com.tron.database;
 
-import com.tron.database.entity.Game;
-import com.tron.database.entity.Player;
-import com.tron.database.entity.HighScore;
+import com.tron.database.entity.GameEntity;
+import com.tron.database.entity.PlayerEntity;
+import com.tron.database.entity.HighScoreEntity;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,7 +37,7 @@ public class HighScoreDB {
     private final Timestamp start_time;
     private Timestamp end_time;
     
-    public HighScoreDB(Game game) throws SQLException {
+    public HighScoreDB(GameEntity game) throws SQLException {
         Properties connectionProps = new Properties();
         connectionProps.put("user", "root");
         connectionProps.put("password", "AlFarizi");
@@ -51,19 +51,23 @@ public class HighScoreDB {
         this.end_time = null;
     }
     
-    public void putHighScore(HighScore highScore) throws SQLException {
-        insertPlayer(highScore.getPlayer());
-        insertSessions(highScore);
-        insertLeaderboard(highScore);
+    public void putHighScore(HighScoreEntity highScore) {
+        try {
+            insertPlayer(highScore.getPlayer());
+            insertSessions(highScore);
+            insertLeaderboard(highScore);
+        } catch (SQLException e) {
+            System.out.print("there was an incomplete highscore insertion");
+        }
     }
     
-    public int getHighScore(HighScore highScore) throws SQLException {
+    public int getHighScore(HighScoreEntity highScore) {
         // overal highscore from DB
         return retrieveHighScore(highScore);
     }
     
-    public List<HighScore> getHighScores() throws SQLException {
-        List<HighScore> highScores = new ArrayList<>();
+    public List<HighScoreEntity> getHighScores() {
+        List<HighScoreEntity> highScores = new ArrayList<>();
         
         String query = """
                        SELECT pname, phash, registerdate, highscore
@@ -81,16 +85,43 @@ public class HighScoreDB {
                     Date registerDate = result.getDate("registerdate");
                     int highScore = result.getInt("highscore");
                     
-                    Player player = new Player(playerName, passwordHash, registerDate, Player.PasswordType.HASHED);
-                    highScores.add(new HighScore(player, highScore)); 
+                    PlayerEntity player = new PlayerEntity(playerName, passwordHash, registerDate, PlayerEntity.PasswordType.HASHED);
+                    highScores.add(new HighScoreEntity(player, highScore)); 
                 }
             }
-        }
+        } catch (SQLException e) {}
+        
         return highScores;
     }
     
+    public PlayerEntity getPlayer(String name, String password) {
+        PlayerEntity player = null;
+        
+        String query = """
+                       SELECT phash, registerdate FROM Player WHERE pname=?
+                       """;
+        
+        try (PreparedStatement playerQuery = connection.prepareStatement(query)){
+            playerQuery.setString(1, name);
+            try (ResultSet result = playerQuery.executeQuery()){
+                while (result.next()) {
+                    String passwordHash = result.getString("phash");
+                    Date registerDate = result.getDate("registerdate");
+                    
+                    PlayerEntity currPlayer = new PlayerEntity(name, passwordHash, registerDate, PlayerEntity.PasswordType.HASHED);
+                    if (currPlayer.checkPassword(password)){
+                        player = currPlayer;
+                        break;
+                    }
+                }
+            }            
+        } catch (SQLException e) {}
+        
+        return player;
+    }
     
-    private int insertGame(Game game) throws SQLException {
+    
+    private int insertGame(GameEntity game) throws SQLException {
         int gameId;
         if ((gameId = retrieveGameId(game)) >= 0) return gameId;
         
@@ -110,7 +141,7 @@ public class HighScoreDB {
         return gameId;
     }
     
-    private int insertPlayer(Player player) throws SQLException {
+    private int insertPlayer(PlayerEntity player) throws SQLException {
         int playerNo;
         if ((playerNo = retrievePlayerNo(player)) >= 0) return playerNo;
         
@@ -131,7 +162,7 @@ public class HighScoreDB {
         return playerNo;
     }
     
-    private int insertSessions(HighScore highScore) throws SQLException {
+    private int insertSessions(HighScoreEntity highScore) throws SQLException {
         int sessionsid = -1;
         
         int playerNo;
@@ -162,7 +193,7 @@ public class HighScoreDB {
     }
     
     
-    private void insertLeaderboard(HighScore highScore) throws SQLException {
+    private void insertLeaderboard(HighScoreEntity highScore) throws SQLException {
         int playerNo;
         if ((playerNo = retrievePlayerNo(highScore.getPlayer())) < 0) return;
         
@@ -197,23 +228,25 @@ public class HighScoreDB {
         }
     }
     
-    private int retrievePlayerNo (Player player) throws SQLException {
+    private int retrievePlayerNo (PlayerEntity player) {
         int playerNo = -1;
         
         String query = """
-                       SELECT playerno FROM Player WHERE pname=?
+                       SELECT playerno FROM Player WHERE pname=? AND phash=?
                        """;
         
         try (PreparedStatement playerNoQuery = connection.prepareStatement(query)){
             playerNoQuery.setString(1, player.getName());
+            playerNoQuery.setString(2, player.getPasswordHash());
             try (ResultSet result = playerNoQuery.executeQuery()){
                 if (result.next()) playerNo = result.getInt("playerno");
             }            
-        }
+        } catch (SQLException e) {}
+        
         return playerNo;
     }
     
-    private int retrieveGameId (Game game) throws SQLException {
+    private int retrieveGameId (GameEntity game) {
         int gameId = -1;
         
         String query = """
@@ -225,11 +258,12 @@ public class HighScoreDB {
             try (ResultSet result = gameIdQuery.executeQuery()){
                 if (result.next()) gameId = result.getInt("gameid"); 
             }
-        }
+        } catch (SQLException e) {}
+        
         return gameId;
     }
     
-    private int retrieveHighScore (HighScore highScore) throws SQLException {
+    private int retrieveHighScore (HighScoreEntity highScore) {
         int highScoreFromDB = -1;
         
         String query = """
@@ -244,7 +278,8 @@ public class HighScoreDB {
             try (ResultSet result = highScoreQuery.executeQuery()){
                 if (result.next()) highScoreFromDB = result.getInt("highscore");
             }            
-        }
+        } catch (SQLException e) {}
+        
         return highScoreFromDB;
     }
    
