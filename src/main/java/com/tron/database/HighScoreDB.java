@@ -102,13 +102,12 @@ public class HighScoreDB {
         
         String query = """
                        SELECT phash, registerdate 
-                       FROM Player p, Sessions s 
-                       WHERE p.playerno=s.playerno AND gameid=? AND pname=?
+                       FROM Player
+                       WHERE pname=?
                        """;
 
         try (PreparedStatement playerQuery = connection.prepareStatement(query)){
-            playerQuery.setInt(1, this.gameId);
-            playerQuery.setString(2, name);
+            playerQuery.setString(1, name);
             try (ResultSet result = playerQuery.executeQuery()){
                 while (result.next()) {
                     String passwordHash = result.getString("phash");
@@ -119,6 +118,29 @@ public class HighScoreDB {
                         player = currPlayer;
                         break;
                     }
+                }
+            }            
+        } catch (SQLException e) {}
+        
+        return player;
+    }
+    
+    public PlayerEntity getPlayer(String name) {
+        PlayerEntity player = null;
+        
+        String query = """
+                       SELECT phash, registerdate 
+                       FROM Player
+                       WHERE pname=?
+                       """;
+
+         try (PreparedStatement playerQuery = connection.prepareStatement(query)){
+            playerQuery.setString(1, name);
+            try (ResultSet result = playerQuery.executeQuery()){
+                if (result.next()) {
+                    String passwordHash = result.getString("phash");
+                    Date registerDate = result.getDate("registerdate");
+                    player = new PlayerEntity(name, passwordHash, registerDate, PlayerEntity.PasswordType.HASHED);
                 }
             }            
         } catch (SQLException e) {}

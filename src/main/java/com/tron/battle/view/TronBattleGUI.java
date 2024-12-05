@@ -4,7 +4,7 @@
  */
 package com.tron.battle.view;
 
-import com.tron.battle.view.BoardGUI;
+import com.tron.battle.model.Player;
 
 import javax.swing.JFrame;
 
@@ -16,12 +16,15 @@ public class TronBattleGUI {
     private final JFrame frame;
 //    private BoardGUI boardGUI;
     
-    public TronBattleGUI() {
+    public TronBattleGUI(Player player1, Player player2) {
         frame = new JFrame("Tron");
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        System.out.println(player1);
+        System.out.println(player2);
         
         
         

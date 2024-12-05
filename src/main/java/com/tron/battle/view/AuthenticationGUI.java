@@ -4,8 +4,20 @@
  */
 package com.tron.battle.view;
 
+import com.tron.battle.model.Player;
+import com.tron.battle.controller.TronBattle;
+import com.tron.database.HighScoreDB;
+
+import com.tron.database.entity.HighScoreEntity;
+import com.tron.database.entity.PlayerEntity;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.sql.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -13,79 +25,195 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author zizi
  */
 public class AuthenticationGUI {
+
     private final JFrame frame;
-    private final JTextField player1Username, player1Password, player2Username, player2Password;
-    private final JButton player1Start, player2Start;
+    private final JTextField player1Username, player2Username;
+    private final JPasswordField player1Password, player2Password;
     private final JComboBox<String> player1Color, player2Color;
+    private final JLabel player1Status, player2Status;
     private final AtomicBoolean player1Ready, player2Ready;
 
+    private static Player player1 = null;
+    private static Player player2 = null;
+    
+    private HighScoreDB database;
+    
     public AuthenticationGUI() {
-        frame = new JFrame("Player Authentication");
+        frame = new JFrame("Tron - Player Authentication");
         frame.setLayout(new GridLayout(1, 2, 10, 10));
         frame.setSize(600, 400);
+        frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JPanel player1Panel = new JPanel();
-        player1Panel.setLayout(new GridLayout(6, 1, 10, 10));
-        player1Panel.setBorder(BorderFactory.createTitledBorder("Player 1"));
-
-        player1Username = new JTextField("Username");
-        player1Password = new JPasswordField("Password");
-        player1Color = new JComboBox<>(new String[]{"Red", "Blue", "Green", "Yellow"});
-        player1Start = new JButton("Start");
+        
         player1Ready = new AtomicBoolean(false);
-
-        player1Panel.add(player1Username);
-        player1Panel.add(player1Password);
-        player1Panel.add(new JLabel("Choose Color:"));
-        player1Panel.add(player1Color);
-        player1Panel.add(player1Start);
-
-        JPanel player2Panel = new JPanel();
-        player2Panel.setLayout(new GridLayout(6, 1, 10, 10));
-        player2Panel.setBorder(BorderFactory.createTitledBorder("Player 2"));
-
-        player2Username = new JTextField("Username");
-        player2Password = new JPasswordField("Password");
-        player2Color = new JComboBox<>(new String[]{"Red", "Blue", "Green", "Yellow"});
-        player2Start = new JButton("Start");
         player2Ready = new AtomicBoolean(false);
 
-        player2Panel.add(player2Username);
-        player2Panel.add(player2Password);
-        player2Panel.add(new JLabel("Choose Color:"));
-        player2Panel.add(player2Color);
-        player2Panel.add(player2Start);
+        JPanel player1Panel = createPlayerPanel("Player 1", player1Ready);
+        player1Username = (JTextField) player1Panel.getComponent(0);
+        player1Password = (JPasswordField) player1Panel.getComponent(1);
+        player1Color = (JComboBox<String>) player1Panel.getComponent(3);
+        player1Status = (JLabel) player1Panel.getComponent(5);
+
+        JPanel player2Panel = createPlayerPanel("Player 2", player2Ready);
+        player2Username = (JTextField) player2Panel.getComponent(0);
+        player2Password = (JPasswordField) player2Panel.getComponent(1);
+        player2Color = (JComboBox<String>) player2Panel.getComponent(3);
+        player2Status = (JLabel) player2Panel.getComponent(5);
 
         frame.add(player1Panel);
         frame.add(player2Panel);
 
-        player1Start.addActionListener(e -> {
-            player1Ready.set(true);
-            checkReady();
-        });
+        try {
+            this.database = TronBattle.getDatabase();
+            frame.setVisible(true);
+        } catch (IllegalStateException ignored){
+            this.database = null;
+            frame.setVisible(false);
+            frame.dispose();
+            new ErrorGUI("UNABLE TO RETRIEVE DATABASE!");
+        }
+        
+    }
+    
+    private JPanel createPlayerPanel(String title,  AtomicBoolean readyFlag){
+        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
+        panel.setBorder(BorderFactory.createTitledBorder(title));
 
-        player2Start.addActionListener(e -> {
-            player2Ready.set(true);
-            checkReady();
-        });
+        JTextField usernameField = createTextField("Username");
+        JPasswordField passwordField = createPasswordField("Password");
+        JComboBox<String> colorBox = new JComboBox<>(new String[]{"Red", "Blue", "Green", "Yellow"});
+        JButton startButton = new JButton("Start");
+        JLabel statusLabel = new JLabel();
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        statusLabel.setForeground(Color.RED);
 
-        frame.setVisible(true);
+        
+        startButton.addActionListener(e -> {
+            String username = usernameField.getText().trim();
+            String password = new String(passwordField.getPassword());
+
+            // Attempt to retrieve or create a player            
+            Player player;
+            
+            PlayerEntity playerByNamePassword = database.getPlayer(username, password);
+            if (playerByNamePassword == null) {
+                
+                PlayerEntity playerByName = database.getPlayer(username);
+                if (playerByName == null){
+                     player = new Player(username, password, Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), PlayerEntity.PasswordType.PLAIN);
+                } else {
+                    player = new Player(playerByName.getName(), playerByName.getPasswordHash(), playerByName.getRegisterDate(), PlayerEntity.PasswordType.HASHED); 
+                }
+            
+            } else {
+                player = new Player(playerByNamePassword.getName(), playerByNamePassword.getPasswordHash(), playerByNamePassword.getRegisterDate(), PlayerEntity.PasswordType.HASHED);
+            }
+            
+            
+            if (player.checkPassword(password)) {
+                if (title.equals("Player 1")) player1 = player;
+                if (title.equals("Player 2")) player2 = player;
+                
+                readyFlag.set(true); 
+                String message = playerByNamePassword == null ? "New Player - Ready" : "Registered Player - Ready";
+                statusLabel.setText(message);
+                
+                usernameField.setEditable(false);
+                usernameField.setFocusable(false);
+                passwordField.setEditable(false);
+                passwordField.setFocusable(false);
+                colorBox.setEnabled(false);
+                startButton.setEnabled(false);
+                                
+                this.database.putHighScore(new HighScoreEntity(player, 1));
+                
+                checkReady();
+            } else {
+                statusLabel.setText("Registered Player - Invalid Credentials");
+            }
+        });
+        
+        
+        panel.add(usernameField);
+        panel.add(passwordField);
+        panel.add(new JLabel("Choose Color:"));
+        panel.add(colorBox);
+        panel.add(startButton);
+        panel.add(statusLabel);
+
+        return panel;
+    }
+    
+    private JTextField createTextField(String placeholder) {
+        JTextField textField = new JTextField();
+        setPlaceholder(textField, placeholder);
+        return textField;
+    }
+
+    private JPasswordField createPasswordField(String placeholder) {
+        JPasswordField passwordField = new JPasswordField();
+        setPlaceholder(passwordField, placeholder);
+        return passwordField;
+    }
+
+    private void setPlaceholder(JTextField textField, String placeholder) {
+        textField.setText(placeholder);
+        textField.setForeground(Color.GRAY);
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().isEmpty()) {
+                    textField.setText(placeholder);
+                    textField.setForeground(Color.GRAY);
+                }
+            }
+        });
+    }
+
+    private void setPlaceholder(JPasswordField passwordField, String placeholder) {
+        passwordField.setEchoChar((char) 0);
+        passwordField.setText(placeholder);
+        passwordField.setForeground(Color.GRAY);
+        passwordField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (new String(passwordField.getPassword()).equals(placeholder)) {
+                    passwordField.setText("");
+                    passwordField.setForeground(Color.BLACK);
+                    passwordField.setEchoChar('•');
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (new String(passwordField.getPassword()).isEmpty()) {
+                    passwordField.setText(placeholder);
+                    passwordField.setForeground(Color.GRAY);
+                    passwordField.setEchoChar((char) 0);
+                }
+            }
+        });
     }
 
     private void checkReady() {
-        if (player1Ready.get() && player2Ready.get()) {
-            String player1Data = "Player 1 - Username: " + player1Username.getText() +
-                    ", Color: " + player1Color.getSelectedItem();
-            String player2Data = "Player 2 - Username: " + player2Username.getText() +
-                    ", Color: " + player2Color.getSelectedItem();
-
-            System.out.println(player1Data);
-            System.out.println(player2Data);
-
-            frame.dispose();
-            new TronBattleGUI(); // Pass player data if needed
+        if (player1Ready.get() && player2Ready.get()) {                    
+            if (player1 != null && player2 != null){
+                Timer timer = new Timer(1500, e -> {
+                    new TronBattleGUI(player1, player2); 
+                    frame.dispose();
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
         }
     }
 }

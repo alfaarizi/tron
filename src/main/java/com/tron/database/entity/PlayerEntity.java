@@ -48,7 +48,7 @@ public class PlayerEntity {
     
     @Override
     public String toString() {
-        return "Player{" + "name=" + name + ", registerDate=" + registerDate + '}';
+        return String.format("Player(name=%s, passwordHash=%s, registerDate=%s)", name, passwordHash, registerDate);
     }
     
     

@@ -4,7 +4,7 @@
  */
 package com.tron.battle.view;
 
-import com.tron.battle.view.TronBattleGUI;
+import com.tron.database.HighScoreDB;
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
@@ -21,6 +21,12 @@ public class MenuGUI {
     
     public MenuGUI (){
         frame = new JFrame("Tron - Main Menu");
+        frame.setLayout(null);
+        frame.setSize(400, 400);
+        frame.setResizable(false);
+        frame.setFocusable(true);
+        frame.setLocationRelativeTo(null); 
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         startButton = new JButton("Start");
         startButton.setBounds(100, 100, 200, 50);
@@ -39,13 +45,6 @@ public class MenuGUI {
         frame.add(startButton);
         frame.add(exitButton);
         
-        frame.setLayout(null);
-        frame.setSize(400, 400);
-        frame.setResizable(false);
-        frame.setFocusable(true);
-        frame.setLocationRelativeTo(null); 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-       
         frame.setVisible(true);
     }
 }

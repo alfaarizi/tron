@@ -5,23 +5,21 @@
 package com.tron.battle.model;
 
 import com.tron.database.entity.PlayerEntity;
-import com.tron.database.entity.GameEntity;
 
 import java.sql.SQLException;
 
 import java.util.List;
 import java.awt.Color;
 
-//
-//import java.sql.Date;
-//import java.time.ZoneId;
-//import java.time.ZonedDateTime;
+import java.sql.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  *
  * @author zizi
  */
-public class Player {
+public class Player extends PlayerEntity {
     // extends PlayerEntity 
     // a.k.a Player (trons, currentTron, colored, id)
 //    private final List<Tron> trons;
@@ -31,11 +29,9 @@ public class Player {
 //    private final Color color;
 //    private final String id;
     
-//    public Player(GameEntity game, String name, String password) throws SQLException {
-//        super(game, name, password);
-//    }
-    public Player(){
-        
+    public Player(String name, String password, Date registerDate, PasswordType passwordType) {
+        super(name, password, registerDate, passwordType);
     }
+
  
 }

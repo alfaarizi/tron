@@ -21,23 +21,29 @@ public class TronBattle extends GameEntity {
     // extends GameEntity
     // KnightTournament (gui)
     
-    private final HighScoreDB database;
+    private static HighScoreDB database;
     private final MenuGUI gui;
     
-    public TronBattle() throws SQLException {       
+    public TronBattle() {       
         super("Tron", Date.valueOf(
                 ZonedDateTime.of(1982, 8, 9, 0, 0, 0, 0, ZoneId.of("UTC")).toLocalDate()
         ));
-        this.database = new HighScoreDB(this);
+        
+        try{
+            TronBattle.database = new HighScoreDB(this);
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve database");
+        }
+        
         this.gui = new MenuGUI();
     }    
     
+    public static HighScoreDB getDatabase() {
+        if (database == null) throw new IllegalStateException("Database not initialized properly");
+        return database;
+    }
+    
     public static void main(String[] args){
-        try {
-            TronBattle game = new TronBattle();
-        } catch (SQLException e){
-            System.out.println(e + "");
-        }
-        
+        TronBattle game = new TronBattle();
     }
 }
