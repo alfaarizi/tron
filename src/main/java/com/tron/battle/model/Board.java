@@ -216,8 +216,6 @@ public class Board extends JPanel implements ActionListener {
             int[] pos = positions[i];
             tron.set(pos[0], pos[1], dx, dy, speed);
         }
-        player1Highlight = true;
-        player2Highlight = true;
     }
 
     private void markTaken(Player player) {
