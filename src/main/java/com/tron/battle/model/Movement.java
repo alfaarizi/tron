@@ -10,6 +10,8 @@ import java.awt.event.KeyEvent;
  *
  * @author zizi
  */
+import java.awt.event.KeyEvent;
+
 public class Movement {
     private int x;
     private int y;
@@ -26,8 +28,8 @@ public class Movement {
         this.y = y;
         this.up = up;
         this.down = down;
-        this.right = right;
         this.left = left;
+        this.right = right;
         this.speed = speed;
         this.dx = dx;
         this.dy = dy;
@@ -38,110 +40,63 @@ public class Movement {
         if (dy == 0) x += dx;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
+    public void setX(int x) { this.x = x; }
+    public void setY(int y) { this.y = y; }
+    public void setDX(int dx) { this.dx = dx; }
+    public void setDY(int dy) { this.dy = dy; }
 
-    public void setY(int y) {
-        this.y = y;
-    }
+    public int getX() { return x; }
+    public int getY() { return y; }
+    public int getDX() { return dx; }
+    public int getDY() { return dy; }
+    public int getSpeed() { return speed; }
 
-    public void setDX(int dx) {
-        this.dx = dx;
-    }
-
-    public void setDY(int dy) {
-        this.dy = dy;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getDX() {
-        return dx;
-    }
-
-    public int getDY() {
-        return dy;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
+    public int getUp() { return up; }
+    public int getDown() { return down; }
+    public int getLeft() { return left; }
+    public int getRight() { return right; }
 
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
 
-        if (key == left && dx == 0) {
-            if (dy > 0) {
-                dx = -speed;
-                dy = 0;
-                y = y + speed - 4;
-            } else {
-                dx = -speed;
-                dy = 0;
-            }
-        }
+        if (key == left && dx == 0) moveLeft();
+        if (key == right && dx == 0) moveRight();
+        if (key == up && dy == 0) moveUp();
+        if (key == down && dy == 0) moveDown();
+    }
 
-        if (key == right && dx == 0) {
-            if (dy < 0) {
-                dx = speed;
-                dy = 0;
-                x = x - speed + 4;
-            } else {
-                dx = speed;
-                dy = 0;
-                x = x - speed + 4;
-                y = y + speed - 4;
-            }
-        }
+    private void moveLeft() {
+        dx = -speed;
+        dy = 0;
+        y += (dy > 0) ? speed - 4 : 0;
+    }
 
-        if (key == up && dy == 0) {
-            if (dx < 0) {
-                dy = -speed;
-                dx = 0;
-            } else {
-                dy = -speed;
-                dx = 0;
-                x = x + speed - 4;
-            }
-        }
+    private void moveRight() {
+        dx = speed;
+        dy = 0;
+        x -= (dy < 0) ? speed - 4 : 0;
+        y += (dy >= 0) ? speed - 4 : 0;
+    }
 
-        if (key == down && dy == 0) {
-            if (dx > 0) {
-                dy = speed;
-                dx = 0;
-                x = x + speed - 4;
-                y = y - speed + 4;
-            } else {
-                dy = speed;
-                dx = 0;
-                y = y - speed + 4;
-            }
-        }
+    private void moveUp() {
+        dy = -speed;
+        dx = 0;
+        x += (dx < 0) ? speed - 4 : 0;
+    }
+
+    private void moveDown() {
+        dy = speed;
+        dx = 0;
+        x += (dx > 0) ? speed - 4 : 0;
+        y -= (dy > 0) ? speed - 4 : 0;
     }
 
     public void changeSpeed(int speed) {
         int oldSpeed = this.speed;
         this.speed = speed;
-        if (dx < 0) {
-            dx = -speed;
-        }
-        if (dx > 0) {
-            x = x - speed + oldSpeed;
-            dx = speed;
-        }
-        if (dy < 0) {
-            dy = -speed;
-        }
-        if (dy > 0) {
-            y = y - speed + oldSpeed;
-            dy = speed;
-        }
+        if (dx != 0) x = (dx < 0) ? x - speed + oldSpeed : x + speed - oldSpeed;
+        if (dy != 0) y = (dy < 0) ? y + speed - oldSpeed : y - speed + oldSpeed;
+        dx = (dx != 0) ? dx : 0;
+        dy = (dy != 0) ? dy : 0;
     }
 }

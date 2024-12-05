@@ -218,7 +218,7 @@ public class AuthenticationGUI {
                 Color player1ChosenColor = (Color)getColorFromSelection((String) player1Color.getSelectedItem());
                 Color player2ChosenColor = (Color)getColorFromSelection((String) player2Color.getSelectedItem());
                 
-                Timer timer = new Timer(1500, e -> {
+                Timer timer = new Timer(500, e -> {
                     new BoardGUI(player1, player1ChosenColor, player2, player2ChosenColor); 
                     frame.dispose();
                 });

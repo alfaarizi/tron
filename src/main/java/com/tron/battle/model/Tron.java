@@ -13,15 +13,17 @@ import java.awt.Graphics;
  */
 public class Tron {
     private final Color color;
-    private int score;
     public Movement movement;
     private int activeBonus;
 
     public Tron(Color color, Movement movement) {
         this.color = color;
-        this.score = 0;
         this.movement = movement;
         this.activeBonus = 1000;
+    }
+    
+    public String toString(){
+        return this.color.toString();
     }
 
     public Color getColor() {
@@ -45,19 +47,15 @@ public class Tron {
         player.incrementScore();
     }
 
-    public void draw(Graphics g, int x, int y, Player player, String colour) {
+    public void draw(Graphics g, int x, int y, Player player, String color) {
         g.setColor(getColor());
         if (movement.getDY() == 0) {
-
             g.fillRect(movement.getX(), movement.getY(), movement.getSpeed() - 1, 3);
             g.drawRect(movement.getX(), movement.getY(), movement.getSpeed() - 1, 3);
-
         } else {
             g.fillRect(movement.getX(), movement.getY(), 3, movement.getSpeed() - 1);
             g.drawRect(movement.getX(), movement.getY(), 3, movement.getSpeed() - 1);
-
         }
-        g.drawString(colour + player.getScore(), x, y);
     }
 
     public void set(int x, int y, int dx, int dy, int speed) {
@@ -77,4 +75,5 @@ public class Tron {
         }
         return true;
     }
+    
 }

@@ -110,8 +110,28 @@ public class Board extends JPanel implements ActionListener {
             g.drawImage(graphics.getScoreBoard(), 670, 586, 123, 30, this);
             g.drawImage(graphics.getLogo(), 350, 586, 100, 30, this);
             g.drawRect(1, 1, 791, 581);
-            player1.getCurrentTron().draw(g, 30, 605, this.player1, this.player1.getName() + " : ");
-            player2.getCurrentTron().draw(g, 700, 605, this.player2, this.player2.getName() + " : ");
+            
+            g.setColor(player1.getCurrentTron().getColor());
+            g.drawString(player1.getName() + " : " + player1.getScore(), 30, 605);
+            
+            g.setColor(player2.getCurrentTron().getColor());
+            g.drawString(player2.getName() + " : " + player2.getScore(), 700, 605);
+            
+            // Highlights
+            g.setColor(player1.getCurrentTron().getColor());
+            Movement movementPlayer1 = player1.getCurrentTron().getMovement();
+            g.fillOval(movementPlayer1.getX() - 5, movementPlayer1.getY() - 5, movementPlayer1.getSpeed() + 10, movementPlayer1.getSpeed() + 10);
+
+            g.setColor(player2.getCurrentTron().getColor());
+            Movement movementPlayer2 = player2.getCurrentTron().getMovement();
+            g.fillOval(movementPlayer2.getX() - 5, movementPlayer2.getY() - 5, movementPlayer2.getSpeed() + 10, movementPlayer2.getSpeed() + 10);
+
+            player1.getTrons().get(0).draw(g, 70, 200, this.player1, this.player1.getName() + " : ");
+            player1.getTrons().get(1).draw(g, 70, 400, this.player1, this.player1.getName() + " : ");
+            
+            player2.getTrons().get(0).draw(g, 720, 200, this.player2, this.player2.getName() + " : ");
+            player2.getTrons().get(1).draw(g, 720, 400, this.player2, this.player2.getName() + " : ");
+            
         }
 
         Toolkit.getDefaultToolkit().sync();
@@ -128,24 +148,29 @@ public class Board extends JPanel implements ActionListener {
             }
         }
 
-        player1.getCurrentTron().getMovement().move();
-        player2.getCurrentTron().getMovement().move();
+        for (Tron tron : player1.getTrons()) {
+            tron.getMovement().move();
+        }
+        for (Tron tron : player2.getTrons()) {
+            tron.getMovement().move();
+        }
 
-        player1Dead = player1.getCurrentTron().isDead();
-        player2Dead = player2.getCurrentTron().isDead();
+        player1Dead = player1.getTrons().stream().anyMatch(Tron::isDead);
+        player2Dead = player2.getTrons().stream().anyMatch(Tron::isDead);
+    
         if (!player1Dead && !player2Dead) {
             player1Dead = checkTaken(player1);
             player2Dead = checkTaken(player2);
         }
 
-        if (player2Dead) player1.getCurrentTron().incementScore(player1);
-        if (player1Dead) player2.getCurrentTron().incementScore(player2);
+        if (player2Dead) player1.incrementScore();
+        if (player1Dead) player2.incrementScore();
 
         markTaken(player1);
         markTaken(player2);
 
-        player2Bonus = checkBonus(player2);
         player1Bonus = checkBonus(player1);
+        player2Bonus = checkBonus(player2);
 
         if (player1Bonus && player1.getCurrentTron().movement.getSpeed() != 4) {
             player1.getCurrentTron().movement.changeSpeed(4);
@@ -176,13 +201,23 @@ public class Board extends JPanel implements ActionListener {
             sounds.playSound("audio/dead.wav");
             taken = new boolean[800][600];
             init = true;
-            player1.getCurrentTron().set(70, 200, 2, 0, 2);
-            player2.getCurrentTron().set(720, 200, -2, 0, 2);
+            resetPlayer(player1, new int[][]{{70, 200}, {70, 400}}, 2, 0, 2);
+            resetPlayer(player2, new int[][]{{720, 200}, {720, 400}}, -2, 0, 2);
             bonusDrawn = false;
             player1ActiveBonus = true;
             cleared = false;
         }
         repaint();
+    }
+    
+    private void resetPlayer(Player player, int[][] positions, int dx, int dy, int speed) {
+        for (int i = 0; i < player.getTrons().size(); i++) {
+            Tron tron = player.getTrons().get(i);
+            int[] pos = positions[i];
+            tron.set(pos[0], pos[1], dx, dy, speed);
+        }
+        player1Highlight = true;
+        player2Highlight = true;
     }
 
     private void markTaken(Player player) {
@@ -260,31 +295,67 @@ public class Board extends JPanel implements ActionListener {
         }
         return false;
     }
-
-    public void keyPressed(KeyEvent e) {
-        e.getKeyCode();
-        
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            if (!sessionSaved){
-                timer.stop();
-                this.gui.reset();
-                SwingUtilities.invokeLater(() -> new MessageGUI("Tron - Session Saved", "SESSION SAVED!", Color.GREEN)); 
-                TronBattle.getDatabase().putHighScore(new HighScoreEntity(player1, player1.getScore()));
-                TronBattle.getDatabase().putHighScore(new HighScoreEntity(player2, player2.getScore()));
-                
-                System.out.println("Session saved: ");
-                System.out.println(player1 + "\t" + player1.getScore());
-                System.out.println(player2 + "\t" + player2.getScore());  
-                
-                sessionSaved = true;
-            }
-        }
-        
-        player1.getCurrentTron().movement.keyPressed(e);
-        player2.getCurrentTron().movement.keyPressed(e);
-    }
-
+    
+    
     public boolean getTaken(int x, int y) {
         return taken[x][y];
     }
+
+    public void keyPressed(KeyEvent e) {
+        int key = e.getKeyCode();
+        
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            saveSession();
+        }
+        
+        if (isPlayerMovementKey(key, player1)) processPlayerMovement(player1, e);
+        if (isPlayerMovementKey(key, player2)) processPlayerMovement(player2, e);
+        
+    }
+    
+    private void saveSession() {
+        timer.stop();
+        this.gui.reset();
+
+        SwingUtilities.invokeLater(() -> new MessageGUI("Tron - Session Saved", "SESSION SAVED!", Color.GREEN));
+
+        TronBattle.getDatabase().putHighScore(new HighScoreEntity(player1, player1.getScore()));
+        TronBattle.getDatabase().putHighScore(new HighScoreEntity(player2, player2.getScore()));
+
+        // Log the session save details
+        System.out.println("Session saved: ");
+        System.out.println(player1 + "; Score: " + player1.getScore());
+        System.out.println(player2 + "; Score: " + player2.getScore());
+
+        sessionSaved = true;
+    }
+    
+    private boolean isPlayerMovementKey(int key, Player player) {
+    Movement movement = player.getCurrentTron().getMovement();
+    return key == movement.getUp() ||
+           key == movement.getDown() ||
+           key == movement.getLeft() ||
+           key == movement.getRight();
+    }
+    
+    private void processPlayerMovement(Player player, KeyEvent e) {
+        Movement movement = player.getCurrentTron().getMovement();
+        if (isValidMovement(movement, e)) {
+            player.nextCurrentTron();
+        } 
+        movement.keyPressed(e);
+    }
+      
+    private boolean isValidMovement(Movement movement, KeyEvent e) {
+        int key = e.getKeyCode();
+        if ((key == movement.getLeft() && movement.getDX() != 0) ||
+            (key == movement.getRight() && movement.getDX() != 0) ||
+            (key == movement.getUp() && movement.getDY() != 0) ||
+            (key == movement.getDown() && movement.getDY() != 0)) {
+            return false;
+        }
+        return true;
+    } 
+   
+    
 }

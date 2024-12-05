@@ -50,9 +50,8 @@ public class Player extends PlayerEntity {
         return this.currentTron;
     }
     
-    public Tron nextCurrentTron(){
+    public void nextCurrentTron(){
         this.currentTron = trons.get((trons.indexOf(this.currentTron) + 1) % trons.size());
-        return this.currentTron;
     }
     
     public int getScore() {
