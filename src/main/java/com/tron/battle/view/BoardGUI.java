@@ -4,17 +4,13 @@
  */
 package com.tron.battle.view;
 
-//import java.awt.Color;
-//import java.awt.Point;
-//import java.awt.event.ActionEvent;
-//import java.awt.event.ActionListener;
-//import java.awt.Dimension;
-//import java.awt.GridLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-//import javax.swing.JOptionPane;
-import javax.swing.Timer;
+import com.tron.database.entity.PlayerEntity;
+import com.tron.battle.model.Board;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  *
@@ -22,17 +18,34 @@ import javax.swing.Timer;
  */
 public class BoardGUI {
     // a,k.a BoardGUI (buttons, board, boardPanel, turnLabel, timeLabel, startTime, timer)
-//    private final JButton[][] buttons;
-//    private Board board;
-//    private final JPanel boardPanel;
-//    private final JLabel turnLabel;
-//    private final JLabel timeLabel;
-//    
-//    private long startTime;
-//    private final Timer timer;
-//    
-    public BoardGUI(int boardSize){
-//        board = new Board(boardSize);
+    private JFrame frame;
+    private Board board;
+
+    public BoardGUI(PlayerEntity player1, Color player1Color, PlayerEntity player2, Color player2Color) {
+        
+        frame = new JFrame("Tron Game");
+        frame.setSize(800, 650);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+
+        board = new Board(this, player1, player1Color, player2, player2Color);
+        board.setBackground(Color.BLACK);
+
+        frame.add(board);
+        frame.setVisible(true);
+        board.requestFocusInWindow();
+
+        board.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                board.keyPressed(e);
+            }
+        });
+    }
+    
+    public void reset(){
+        this.board = null;
+        this.frame.dispose();
     }
     
 }

@@ -19,15 +19,15 @@ import javax.swing.SwingConstants;
  *
  * @author zizi
  */
-public class ErrorGUI {
+public class MessageGUI {
     
     private final JFrame frame;
     private final JLabel errorLabel;
     private final JPanel buttonPanel;
     private final JButton backButton;
     
-    public ErrorGUI(String message){
-        frame = new JFrame("Tron - Player Authentication");
+    public MessageGUI(String title, String message, Color color){
+        frame = new JFrame(title);
         frame.setLayout(new BorderLayout());
         frame.setSize(400, 400);
         frame.setResizable(false);
@@ -35,7 +35,7 @@ public class ErrorGUI {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         errorLabel = new JLabel(message, SwingConstants.CENTER);
-        errorLabel.setForeground(Color.RED);
+        errorLabel.setForeground(color);
         errorLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
         backButton = new JButton("Back");

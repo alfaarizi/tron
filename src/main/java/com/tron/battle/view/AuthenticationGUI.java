@@ -4,7 +4,6 @@
  */
 package com.tron.battle.view;
 
-import com.tron.battle.model.Player;
 import com.tron.battle.controller.TronBattle;
 import com.tron.database.HighScoreDB;
 
@@ -33,8 +32,8 @@ public class AuthenticationGUI {
     private final JLabel player1Status, player2Status;
     private final AtomicBoolean player1Ready, player2Ready;
 
-    private static Player player1 = null;
-    private static Player player2 = null;
+    private static PlayerEntity player1 = null;
+    private static PlayerEntity player2 = null;
     
     private HighScoreDB database;
     
@@ -71,7 +70,7 @@ public class AuthenticationGUI {
             this.database = null;
             frame.setVisible(false);
             frame.dispose();
-            new ErrorGUI("UNABLE TO RETRIEVE DATABASE!");
+            new MessageGUI("Tron - Player Authentication", "UNABLE TO RETRIEVE DATABASE!", Color.RED);
         }
         
     }
@@ -94,20 +93,20 @@ public class AuthenticationGUI {
             String password = new String(passwordField.getPassword());
 
             // Attempt to retrieve or create a player            
-            Player player;
+            PlayerEntity player;
             
             PlayerEntity playerByNamePassword = database.getPlayer(username, password);
             if (playerByNamePassword == null) {
                 
                 PlayerEntity playerByName = database.getPlayer(username);
                 if (playerByName == null){
-                     player = new Player(username, password, Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), PlayerEntity.PasswordType.PLAIN);
+                     player = new PlayerEntity(username, password, Date.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDate()), PlayerEntity.PasswordType.PLAIN);
                 } else {
-                    player = new Player(playerByName.getName(), playerByName.getPasswordHash(), playerByName.getRegisterDate(), PlayerEntity.PasswordType.HASHED); 
+                    player = new PlayerEntity(playerByName.getName(), playerByName.getPasswordHash(), playerByName.getRegisterDate(), PlayerEntity.PasswordType.HASHED); 
                 }
             
             } else {
-                player = new Player(playerByNamePassword.getName(), playerByNamePassword.getPasswordHash(), playerByNamePassword.getRegisterDate(), PlayerEntity.PasswordType.HASHED);
+                player = new PlayerEntity(playerByNamePassword.getName(), playerByNamePassword.getPasswordHash(), playerByNamePassword.getRegisterDate(), PlayerEntity.PasswordType.HASHED);
             }
             
             
@@ -126,7 +125,6 @@ public class AuthenticationGUI {
                 colorBox.setEnabled(false);
                 startButton.setEnabled(false);
                                 
-                this.database.putHighScore(new HighScoreEntity(player, 1));
                 
                 checkReady();
             } else {
@@ -203,12 +201,25 @@ public class AuthenticationGUI {
             }
         });
     }
+    
+    private Color getColorFromSelection(String colorName) {
+        return switch (colorName.toLowerCase()) {
+            case "red" -> Color.RED;
+            case "blue" -> Color.BLUE;
+            case "green" -> Color.GREEN;
+            case "yellow" -> Color.YELLOW;
+            default -> Color.BLACK;
+    };
+}
 
     private void checkReady() {
         if (player1Ready.get() && player2Ready.get()) {                    
             if (player1 != null && player2 != null){
+                Color player1ChosenColor = (Color)getColorFromSelection((String) player1Color.getSelectedItem());
+                Color player2ChosenColor = (Color)getColorFromSelection((String) player2Color.getSelectedItem());
+                
                 Timer timer = new Timer(1500, e -> {
-                    new TronBattleGUI(player1, player2); 
+                    new BoardGUI(player1, player1ChosenColor, player2, player2ChosenColor); 
                     frame.dispose();
                 });
                 timer.setRepeats(false);

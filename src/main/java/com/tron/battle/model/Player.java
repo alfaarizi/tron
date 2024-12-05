@@ -6,32 +6,62 @@ package com.tron.battle.model;
 
 import com.tron.database.entity.PlayerEntity;
 
-import java.sql.SQLException;
-
 import java.util.List;
+import java.util.ArrayList;
 import java.awt.Color;
-
-import java.sql.Date;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 /**
  *
  * @author zizi
  */
 public class Player extends PlayerEntity {
-    // extends PlayerEntity 
-    // a.k.a Player (trons, currentTron, colored, id)
-//    private final List<Tron> trons;
-//    private Tron currentTron;    
-//
-//    private Movement movement;
-//    private final Color color;
-//    private final String id;
+    public int score;
+    private final List<Tron> trons;
+    private Tron currentTron;
     
-    public Player(String name, String password, Date registerDate, PasswordType passwordType) {
-        super(name, password, registerDate, passwordType);
-    }
+    public Player(
+        PlayerEntity playerEntity, 
+        Color color, 
+        int[][] initialPositions, 
+        int up, int down, int left, int right, int dx, int dy, int speed
+    ) {
+        super(playerEntity.getName(), playerEntity.getPasswordHash(), playerEntity.getRegisterDate(), PlayerEntity.PasswordType.HASHED);
 
- 
+        this.score = 0;
+        this.trons = new ArrayList<>();
+        
+        // Ensure exactly two trons are added for each player
+        for (int[] pos : initialPositions) {
+            int x = pos[0];
+            int y = pos[1];
+            Movement movement = new Movement(x, y, up, down, left, right, dx, dy, speed);
+            trons.add(new Tron(color, movement)); // Tron will use the player's color
+        }
+        
+        this.currentTron = trons.getFirst();
+}
+
+
+    public List<Tron> getTrons() {
+        return this.trons;
+    }
+    
+    public Tron getCurrentTron(){
+        return this.currentTron;
+    }
+    
+    public Tron nextCurrentTron(){
+        this.currentTron = trons.get((trons.indexOf(this.currentTron) + 1) % trons.size());
+        return this.currentTron;
+    }
+    
+    public int getScore() {
+        return this.score;
+    }
+    
+    public void incrementScore() {
+        this.score++;
+    }
+    
+    
 }

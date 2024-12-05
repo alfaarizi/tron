@@ -60,13 +60,12 @@ public class HighScoreDB {
             insertSessions(highScore);
             insertLeaderboard(highScore);
         } catch (SQLException e) {
-            System.out.print("there was an incomplete highscore insertion");
+            System.out.println("there was an incomplete highscore insertion");
         }
     }
     
     public int getHighScore(HighScoreEntity highScore) {
-        // overal highscore from DB
-        return retrieveHighScore(highScore);
+        return retrieveHighScoreFromLeaderboard(highScore);
     }
     
     public List<HighScoreEntity> getHighScores() {
@@ -225,9 +224,8 @@ public class HighScoreDB {
         int playerNo;
         if ((playerNo = retrievePlayerNo(highScore.getPlayer())) < 0) return;
         
-        int highScoreFromDB = retrieveHighScore(highScore);
-        
-        if (highScoreFromDB < 0){
+        int highScoreFromLeaderboard = retrieveHighScoreFromLeaderboard(highScore);
+        if (highScoreFromLeaderboard < 0){
             // Insert Leaderboard;
             String insertQuery = """
                                  INSERT INTO Leaderboard (playerno, gameid, highscore) VALUES (?, ?, ?)
@@ -247,7 +245,7 @@ public class HighScoreDB {
                                  """;
             
             try (PreparedStatement updateLeaderboardStatement = connection.prepareStatement("UPDATE Leaderboard SET highscore=? WHERE playerno=? AND gameid=?")){
-                updateLeaderboardStatement.setInt(1, highScoreFromDB+highScore.getScore());
+                updateLeaderboardStatement.setInt(1, retrieveHighScoreFromSessions(highScore));
                 updateLeaderboardStatement.setInt(2, playerNo);
                 updateLeaderboardStatement.setInt(3, this.gameId);
                 if (updateLeaderboardStatement.executeUpdate() == 0)
@@ -291,24 +289,41 @@ public class HighScoreDB {
         return gameId;
     }
     
-    private int retrieveHighScore (HighScoreEntity highScore) {
-        int highScoreFromDB = -1;
+    private int retrieveHighScoreFromSessions (HighScoreEntity highScore) {
+        int highScoreFromSessions = -1;
         
         String query = """
-                       SELECT highscore
-                       FROM Leaderboard
+                       SELECT MAX(score) AS maxi
+                       FROM sessions
                        WHERE playerno=? AND gameid=?
                        """;
         
-        try (PreparedStatement highScoreQuery = connection.prepareStatement(query)){
-            highScoreQuery.setInt(1, retrievePlayerNo(highScore.getPlayer()));
-            highScoreQuery.setInt(2, this.gameId);
-            try (ResultSet result = highScoreQuery.executeQuery()){
-                if (result.next()) highScoreFromDB = result.getInt("highscore");
+        try (PreparedStatement highScoreFromSessionsQuery = connection.prepareStatement(query)){
+            highScoreFromSessionsQuery.setInt(1, retrievePlayerNo(highScore.getPlayer()));
+            highScoreFromSessionsQuery.setInt(2, this.gameId);
+            try (ResultSet result = highScoreFromSessionsQuery.executeQuery()){
+                if (result.next()) highScoreFromSessions = result.getInt("maxi");
             }            
         } catch (SQLException e) {}
         
-        return highScoreFromDB;
+        return highScoreFromSessions;
+    }
+    
+    private int retrieveHighScoreFromLeaderboard (HighScoreEntity highScore) {
+        String selectQuery = """
+                             SELECT highscore FROM Leaderboard WHERE playerno=? AND gameid=?
+                             """;
+       
+        int highScoreFromLeaderboard = -1;
+        try(PreparedStatement highScoreFromLeaderboardQuery = connection.prepareStatement(selectQuery)){
+                highScoreFromLeaderboardQuery.setInt(1, retrievePlayerNo(highScore.getPlayer()));
+                highScoreFromLeaderboardQuery.setInt(2, this.gameId);
+                try (ResultSet result = highScoreFromLeaderboardQuery.executeQuery()){
+                    if (result.next()) highScoreFromLeaderboard = result.getInt("highscore");
+                }    
+        } catch (SQLException e) {}
+        
+        return highScoreFromLeaderboard;
     }
    
     
