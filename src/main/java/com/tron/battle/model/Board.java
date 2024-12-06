@@ -5,7 +5,7 @@
 package com.tron.battle.model;
 
 import com.tron.battle.controller.TronBattle;
-import com.tron.battle.view.MessageGUI;
+import com.tron.battle.view.HighScoreGUI;
 import com.tron.battle.view.BoardGUI;
 import com.tron.database.entity.PlayerEntity;
 import com.tron.database.entity.HighScoreEntity;
@@ -15,6 +15,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -55,12 +58,12 @@ public class Board extends JPanel implements ActionListener {
         player1 = new Player(
                 player1Entity, player1Color,
                 new int[][]{{70, 200}, {70, 400}}, 
-                KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, 2, 0, 2
+                KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, 3, 0, 3
         );
         player2 = new Player(
                 player2Entity, player2Color,
                 new int[][]{{720, 200}, {720, 400}}, 
-                KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, -2, 0, 2
+                KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, -3, 0, 3
         );
         setFocusable(true);
 
@@ -200,8 +203,8 @@ public class Board extends JPanel implements ActionListener {
             player1Taken = new boolean[800][600];
             player2Taken = new boolean[800][600];
             init = true;
-            resetPlayer(player1, new int[][]{{70, 200}, {70, 400}}, 2, 0, 2);
-            resetPlayer(player2, new int[][]{{720, 200}, {720, 400}}, -2, 0, 2);
+            resetPlayer(player1, new int[][]{{70, 200}, {70, 400}}, 3, 0, 3);
+            resetPlayer(player2, new int[][]{{720, 200}, {720, 400}}, -3, 0, 3);
             bonusDrawn = false;
             player1ActiveBonus = true;
             cleared = false;
@@ -311,11 +314,12 @@ public class Board extends JPanel implements ActionListener {
     private void saveSession() {
         timer.stop();
         this.gui.reset();
-
-        SwingUtilities.invokeLater(() -> new MessageGUI("Tron - Session Saved", "SESSION SAVED!", Color.GREEN));
-
+        
         TronBattle.getDatabase().putHighScore(new HighScoreEntity(player1, player1.getScore()));
         TronBattle.getDatabase().putHighScore(new HighScoreEntity(player2, player2.getScore()));
+        
+        List<HighScoreEntity> highScores = TronBattle.getDatabase().getHighScores().stream().limit(10).collect(Collectors.toList());
+        SwingUtilities.invokeLater(() -> new HighScoreGUI("Tron - Session Saved", highScores, Color.WHITE));
 
         sessionSaved = true;
     }

@@ -23,7 +23,7 @@ public class BoardGUI {
     public BoardGUI(PlayerEntity player1, Color player1Color, PlayerEntity player2, Color player2Color) {  
         frame = new JFrame("Tron Game");
         frame.setSize(800, 650);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
         board = new Board(this, player1, player1Color, player2, player2Color);

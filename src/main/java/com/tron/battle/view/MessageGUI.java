@@ -22,7 +22,7 @@ import javax.swing.SwingConstants;
 public class MessageGUI {
     
     private final JFrame frame;
-    private final JLabel errorLabel;
+    private final JLabel messageLabel;
     private final JPanel buttonPanel;
     private final JButton backButton;
     
@@ -32,11 +32,11 @@ public class MessageGUI {
         frame.setSize(400, 400);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        errorLabel = new JLabel(message, SwingConstants.CENTER);
-        errorLabel.setForeground(color);
-        errorLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        messageLabel = new JLabel(message, SwingConstants.CENTER);
+        messageLabel.setForeground(color);
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
         backButton = new JButton("Back");
         backButton.setPreferredSize(new Dimension(200, 50));
@@ -48,7 +48,7 @@ public class MessageGUI {
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(backButton);
         
-        frame.add(errorLabel, BorderLayout.CENTER);
+        frame.add(messageLabel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH); 
 
         frame.setVisible(true);

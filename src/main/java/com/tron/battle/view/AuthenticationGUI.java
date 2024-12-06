@@ -17,6 +17,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 /**
  *
  * @author zizi
@@ -41,7 +44,7 @@ public class AuthenticationGUI {
         frame.setSize(600, 400);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         
         player1Ready = new AtomicBoolean(false);
         player2Ready = new AtomicBoolean(false);
@@ -60,6 +63,17 @@ public class AuthenticationGUI {
 
         frame.add(player1Panel);
         frame.add(player2Panel);
+        
+        
+        addEscapeKeyListenerToComponents(
+            player1Username, 
+            player1Password, 
+            player2Username, 
+            player2Password, 
+            player1Color, 
+            player2Color, 
+            frame
+        );
 
         try {
             this.database = TronBattle.getDatabase();
@@ -71,6 +85,25 @@ public class AuthenticationGUI {
             new MessageGUI("Tron - Player Authentication", "UNABLE TO RETRIEVE DATABASE!", Color.RED);
         }
         
+    }
+    
+    private void addEscapeKeyListenerToComponents(Component... components) {
+        KeyAdapter escapeListener = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    new MenuGUI();
+                    frame.dispose();
+                }
+            }
+        };
+
+        for (Component component : components) {
+            component.addKeyListener(escapeListener);
+        }
+
+        frame.setFocusable(true);
+        frame.requestFocusInWindow();
     }
     
     private JPanel createPlayerPanel(String title,  AtomicBoolean readyFlag){
@@ -88,6 +121,15 @@ public class AuthenticationGUI {
         startButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword());
+            
+            boolean isTextFieldEmpty = username.isEmpty() || password.isEmpty();
+            if (isTextFieldEmpty || 
+                username.equals("Username") || 
+                password.equals("Password")
+            ) {
+                statusLabel.setText("Username and Password cannot be empty.");
+                return;
+            }
 
             // attempts to retrieve or create a player            
             PlayerEntity player;
@@ -108,6 +150,18 @@ public class AuthenticationGUI {
             
             
             if (player.checkPassword(password)) {
+                String player1SelectedUsername = (String) player1Username.getText().trim();
+                String player2SelectedUsername = (String) player2Username.getText().trim();
+                String player1SelectedColor = (String) player1Color.getSelectedItem();
+                String player2SelectedColor = (String) player2Color.getSelectedItem();
+                if (!isTextFieldEmpty && player1SelectedUsername.equalsIgnoreCase(player2SelectedUsername)) {
+                    statusLabel.setText("Players cannot choose the same name.");
+                    return; 
+                } else if (!isTextFieldEmpty && player1SelectedColor.equalsIgnoreCase(player2SelectedColor)) {
+                    statusLabel.setText("Players cannot choose the same color.");
+                    return;   
+                }
+                
                 if (title.equals("Player 1")) player1 = player;
                 if (title.equals("Player 2")) player2 = player;
                 
@@ -120,8 +174,7 @@ public class AuthenticationGUI {
                 passwordField.setEditable(false);
                 passwordField.setFocusable(false);
                 colorBox.setEnabled(false);
-                startButton.setEnabled(false);
-                                
+                startButton.setEnabled(false);            
                 
                 checkReady();
             } else {
