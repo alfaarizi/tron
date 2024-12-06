@@ -29,7 +29,8 @@ public class Board extends JPanel implements ActionListener {
     private boolean player1Dead;
     private boolean player2Dead;
 
-    public  boolean[][] taken;
+    private boolean[][] player1Taken;
+    private boolean[][] player2Taken;
     private boolean[][] bonusTab;
 
     private boolean drawBonus;
@@ -74,7 +75,8 @@ public class Board extends JPanel implements ActionListener {
         sounds = new Music();
         player1Dead = false;
         player2Dead = false;
-        taken = new boolean[800][600];
+        player1Taken = new boolean[800][600];
+        player2Taken = new boolean[800][600];
         bonusTab = new boolean[800][600];
         timer = new Timer(DELAY, this);
         timer.start();
@@ -195,7 +197,8 @@ public class Board extends JPanel implements ActionListener {
 
         if (player1Dead || player2Dead) {
             sounds.playSound("audio/dead.wav");
-            taken = new boolean[800][600];
+            player1Taken = new boolean[800][600];
+            player2Taken = new boolean[800][600];
             init = true;
             resetPlayer(player1, new int[][]{{70, 200}, {70, 400}}, 2, 0, 2);
             resetPlayer(player2, new int[][]{{720, 200}, {720, 400}}, -2, 0, 2);
@@ -216,6 +219,7 @@ public class Board extends JPanel implements ActionListener {
 
     private void markTaken(Player player) {
         int width, height;
+        boolean[][] targetTaken = player.equals(player1) ? player1Taken : player2Taken;
 
         if (player.getCurrentTron().getMovement().getDY() == 0) {
             width = player.getCurrentTron().getMovement().getSpeed();
@@ -228,8 +232,11 @@ public class Board extends JPanel implements ActionListener {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 try {
-                    if (player.getCurrentTron().getMovement().getX() + i < 800 && player.getCurrentTron().getMovement().getY() + j < 600)
-                        taken[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j] = true;
+                    int x = player.getCurrentTron().getMovement().getX() + i;
+                    int y = player.getCurrentTron().getMovement().getY() + j;
+                    if (x < 800 && y < 600) {
+                        targetTaken[x][y] = true;
+                    }
                 } catch (ArrayIndexOutOfBoundsException e) {}
             }
         }
@@ -237,6 +244,7 @@ public class Board extends JPanel implements ActionListener {
 
     private boolean checkTaken(Player player) {
         int width, height;
+        boolean[][] opponentTaken = player.equals(player1) ? player2Taken : player1Taken;
 
         if (player.getCurrentTron().getMovement().getDY() == 0) {
             width = player.getCurrentTron().getMovement().getSpeed();
@@ -248,12 +256,13 @@ public class Board extends JPanel implements ActionListener {
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if (player.getCurrentTron().getMovement().getX() + i <= 800 && player.getCurrentTron().getMovement().getY() + j <= 600) {
-                    try {
-                        if (taken[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j]) 
-                            return true;
-                    } catch (ArrayIndexOutOfBoundsException e) {}
-                }
+                try {
+                    int x = player.getCurrentTron().getMovement().getX() + i;
+                    int y = player.getCurrentTron().getMovement().getY() + j;
+                    if (x < 800 && y < 600 && opponentTaken[x][y]) {
+                        return true;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {}
             }
         }
         return false;
@@ -273,7 +282,9 @@ public class Board extends JPanel implements ActionListener {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 try {
-                    if (bonusTab[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j])
+                    int x = player.getCurrentTron().getMovement().getX() + i;
+                    int y = player.getCurrentTron().getMovement().getY() + j;
+                    if (bonusTab[x][y])
                         return true;
                 } catch (ArrayIndexOutOfBoundsException e) {}
             }
@@ -283,7 +294,7 @@ public class Board extends JPanel implements ActionListener {
     
     
     public boolean getTaken(int x, int y) {
-        return taken[x][y];
+        return player1Taken[x][y] || player2Taken[x][y];
     }
 
     public void keyPressed(KeyEvent e) {
