@@ -10,8 +10,6 @@ import java.awt.event.KeyEvent;
  *
  * @author zizi
  */
-import java.awt.event.KeyEvent;
-
 public class Movement {
     private int x;
     private int y;
@@ -58,7 +56,6 @@ public class Movement {
 
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
-
         if (key == left && dx == 0) moveLeft();
         if (key == right && dx == 0) moveRight();
         if (key == up && dy == 0) moveUp();

@@ -4,7 +4,8 @@
  */
 package com.tron.battle.model;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.Random;
 
 /**
@@ -49,7 +50,6 @@ public class Bonus {
     }
 
     public void randomPosition() {
-
         boolean notPossible = true;
 
         while (notPossible) {

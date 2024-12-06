@@ -4,8 +4,6 @@
  */
 package com.tron.battle.view;
 
-import com.tron.database.HighScoreDB;
-
 import javax.swing.JFrame;
 import javax.swing.JButton;
 
@@ -13,8 +11,6 @@ import javax.swing.JButton;
  *
  * @author zizi
  */
-
-
 public class MenuGUI {
     private final JFrame frame;
     private final JButton startButton, exitButton;

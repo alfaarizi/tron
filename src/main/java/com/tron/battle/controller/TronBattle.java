@@ -18,8 +18,6 @@ import java.time.ZonedDateTime;
  * @author zizi
  */
 public class TronBattle extends GameEntity {
-    // extends GameEntity
-    // KnightTournament (gui)
     
     private static HighScoreDB database;
     private final MenuGUI gui;
@@ -32,18 +30,18 @@ public class TronBattle extends GameEntity {
         try{
             TronBattle.database = new HighScoreDB(this);
         } catch (SQLException e) {
-            System.out.println("Failed to retrieve database");
+            System.out.println("database not connected");
         }
         
         this.gui = new MenuGUI();
     }    
     
     public static HighScoreDB getDatabase() {
-        if (database == null) throw new IllegalStateException("Database not initialized properly");
+        if (database == null) throw new IllegalStateException("database not initialized properly");
         return database;
     }
     
     public static void main(String[] args){
-        TronBattle game = new TronBattle();
+        new TronBattle();
     }
 }

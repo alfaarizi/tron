@@ -17,12 +17,10 @@ import java.awt.event.KeyEvent;
  * @author zizi
  */
 public class BoardGUI {
-    // a,k.a BoardGUI (buttons, board, boardPanel, turnLabel, timeLabel, startTime, timer)
-    private JFrame frame;
+    private final JFrame frame;
     private Board board;
 
-    public BoardGUI(PlayerEntity player1, Color player1Color, PlayerEntity player2, Color player2Color) {
-        
+    public BoardGUI(PlayerEntity player1, Color player1Color, PlayerEntity player2, Color player2Color) {  
         frame = new JFrame("Tron Game");
         frame.setSize(800, 650);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

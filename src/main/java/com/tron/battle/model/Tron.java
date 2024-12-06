@@ -13,17 +13,13 @@ import java.awt.Graphics;
  */
 public class Tron {
     private final Color color;
-    public Movement movement;
+    private Movement movement;
     private int activeBonus;
 
     public Tron(Color color, Movement movement) {
         this.color = color;
         this.movement = movement;
         this.activeBonus = 1000;
-    }
-    
-    public String toString(){
-        return this.color.toString();
     }
 
     public Color getColor() {

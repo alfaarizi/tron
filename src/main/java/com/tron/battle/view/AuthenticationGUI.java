@@ -6,8 +6,6 @@ package com.tron.battle.view;
 
 import com.tron.battle.controller.TronBattle;
 import com.tron.database.HighScoreDB;
-
-import com.tron.database.entity.HighScoreEntity;
 import com.tron.database.entity.PlayerEntity;
 
 import javax.swing.*;
@@ -87,12 +85,11 @@ public class AuthenticationGUI {
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         statusLabel.setForeground(Color.RED);
 
-        
         startButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword());
 
-            // Attempt to retrieve or create a player            
+            // attempts to retrieve or create a player            
             PlayerEntity player;
             
             PlayerEntity playerByNamePassword = database.getPlayer(username, password);

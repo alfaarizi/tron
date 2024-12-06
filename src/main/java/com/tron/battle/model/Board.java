@@ -5,10 +5,10 @@
 package com.tron.battle.model;
 
 import com.tron.battle.controller.TronBattle;
-import com.tron.database.entity.PlayerEntity;
-import com.tron.database.entity.HighScoreEntity;
 import com.tron.battle.view.MessageGUI;
 import com.tron.battle.view.BoardGUI;
+import com.tron.database.entity.PlayerEntity;
+import com.tron.database.entity.HighScoreEntity;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +21,7 @@ import java.awt.event.KeyEvent;
  * @author zizi
  */
 public class Board extends JPanel implements ActionListener {
-    private Timer timer;
+    private final Timer timer;
     private final Player player1;
     private final Player player2;
     private static final int DELAY = 10;
@@ -53,12 +53,12 @@ public class Board extends JPanel implements ActionListener {
         this.gui = gui;
         player1 = new Player(
                 player1Entity, player1Color,
-                new int[][]{{70, 200}, {70, 400}}, // example initial positions for two trons
+                new int[][]{{70, 200}, {70, 400}}, 
                 KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, 2, 0, 2
         );
         player2 = new Player(
                 player2Entity, player2Color,
-                new int[][]{{720, 200}, {720, 400}}, // example initial positions for two trons
+                new int[][]{{720, 200}, {720, 400}}, 
                 KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, -2, 0, 2
         );
         setFocusable(true);
@@ -85,7 +85,6 @@ public class Board extends JPanel implements ActionListener {
 
     @Override
     public void paintComponent(Graphics g) {
-        //at the beginning and after death we clear board
         if (init) {
             g.setColor(Color.black);
             g.fillRect(0, 0, 800, 650);
@@ -172,8 +171,8 @@ public class Board extends JPanel implements ActionListener {
         player1Bonus = checkBonus(player1);
         player2Bonus = checkBonus(player2);
 
-        if (player1Bonus && player1.getCurrentTron().movement.getSpeed() != 4) {
-            player1.getCurrentTron().movement.changeSpeed(4);
+        if (player1Bonus && player1.getCurrentTron().getMovement().getSpeed() != 4) {
+            player1.getCurrentTron().getMovement().changeSpeed(4);
             bonusDrawn = false;
             player1ActiveBonus = true;
             cleared = false;
@@ -185,17 +184,14 @@ public class Board extends JPanel implements ActionListener {
             cleared = false;
         }
 
-        if (player1ActiveBonus) {
+        if (player1ActiveBonus)
             player1ActiveBonus = player1.getCurrentTron().activeBonusPass();
-        }
 
-        if (player2ActiveBonus) {
+        if (player2ActiveBonus)
             player2ActiveBonus = player2.getCurrentTron().activeBonusPass();
-        }
 
-        if (player1ActiveBonus || player2ActiveBonus) {
+        if (player1ActiveBonus || player2ActiveBonus)
             bonusTab = new boolean[800][600];
-        }
 
         if (player1Dead || player2Dead) {
             sounds.playSound("audio/dead.wav");
@@ -219,8 +215,7 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void markTaken(Player player) {
-        int height;
-        int width;
+        int width, height;
 
         if (player.getCurrentTron().getMovement().getDY() == 0) {
             width = player.getCurrentTron().getMovement().getSpeed();
@@ -235,16 +230,13 @@ public class Board extends JPanel implements ActionListener {
                 try {
                     if (player.getCurrentTron().getMovement().getX() + i < 800 && player.getCurrentTron().getMovement().getY() + j < 600)
                         taken[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j] = true;
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
+                } catch (ArrayIndexOutOfBoundsException e) {}
             }
         }
     }
 
     private boolean checkTaken(Player player) {
-        int height;
-        int width;
+        int width, height;
 
         if (player.getCurrentTron().getMovement().getDY() == 0) {
             width = player.getCurrentTron().getMovement().getSpeed();
@@ -258,10 +250,9 @@ public class Board extends JPanel implements ActionListener {
             for (int j = 0; j < height; j++) {
                 if (player.getCurrentTron().getMovement().getX() + i <= 800 && player.getCurrentTron().getMovement().getY() + j <= 600) {
                     try {
-                        if (taken[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j]) return true;
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        e.printStackTrace();
-                    }
+                        if (taken[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j]) 
+                            return true;
+                    } catch (ArrayIndexOutOfBoundsException e) {}
                 }
             }
         }
@@ -269,8 +260,7 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private boolean checkBonus(Player player) {
-        int height;
-        int width;
+        int width, height;
 
         if (player.getCurrentTron().getMovement().getDY() == 0) {
             width = player.getCurrentTron().getMovement().getSpeed();
@@ -283,12 +273,9 @@ public class Board extends JPanel implements ActionListener {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 try {
-                    if (bonusTab[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j]) {
+                    if (bonusTab[player.getCurrentTron().getMovement().getX() + i][player.getCurrentTron().getMovement().getY() + j])
                         return true;
-                    }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
+                } catch (ArrayIndexOutOfBoundsException e) {}
             }
         }
         return false;
@@ -302,9 +289,8 @@ public class Board extends JPanel implements ActionListener {
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
         
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && !sessionSaved)
             saveSession();
-        }
         
         if (isPlayerMovementKey(key, player1)) processPlayerMovement(player1, e);
         if (isPlayerMovementKey(key, player2)) processPlayerMovement(player2, e);
@@ -319,11 +305,6 @@ public class Board extends JPanel implements ActionListener {
 
         TronBattle.getDatabase().putHighScore(new HighScoreEntity(player1, player1.getScore()));
         TronBattle.getDatabase().putHighScore(new HighScoreEntity(player2, player2.getScore()));
-
-        // Log the session save details
-        System.out.println("Session saved: ");
-        System.out.println(player1 + "; Score: " + player1.getScore());
-        System.out.println(player2 + "; Score: " + player2.getScore());
 
         sessionSaved = true;
     }
@@ -346,12 +327,14 @@ public class Board extends JPanel implements ActionListener {
       
     private boolean isValidMovement(Movement movement, KeyEvent e) {
         int key = e.getKeyCode();
-        if ((key == movement.getLeft() && movement.getDX() != 0) ||
+        if (
+            (key == movement.getLeft() && movement.getDX() != 0) ||
             (key == movement.getRight() && movement.getDX() != 0) ||
             (key == movement.getUp() && movement.getDY() != 0) ||
-            (key == movement.getDown() && movement.getDY() != 0)) {
+            (key == movement.getDown() && movement.getDY() != 0)
+        ) {
             return false;
-        }
+        } 
         return true;
     } 
    
