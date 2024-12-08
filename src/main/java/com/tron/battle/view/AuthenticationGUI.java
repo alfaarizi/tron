@@ -21,7 +21,15 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 /**
- *
+ * Handles player authentication and game setup for the Tron game.
+ * It allows players to log in with their credentials, choose their colors, 
+ * and ensures they are ready to start the game.
+ * 
+ * The window includes:
+ * - Username and password fields for each player.
+ * - Color selection for each player.
+ * - A button to start the game once both players are ready.
+ * 
  * @author zizi
  */
 public class AuthenticationGUI {
@@ -38,6 +46,11 @@ public class AuthenticationGUI {
     
     private HighScoreDB database;
     
+    /**
+     * Constructs the Authentication GUI, initializing player panels, 
+     * and establishing database connections. Displays the window 
+     * for user authentication and game setup.
+    */
     public AuthenticationGUI() {
         frame = new JFrame("Tron - Player Authentication");
         frame.setLayout(new GridLayout(1, 2, 10, 10));
@@ -87,6 +100,13 @@ public class AuthenticationGUI {
         
     }
     
+    /**
+     * Adds an escape key listener to all the specified components.
+     * Pressing the Escape key will close the authentication window
+     * and navigate to the main menu.
+     * 
+     * @param components Components to attach the Escape key listener to.
+    */
     private void addEscapeKeyListenerToComponents(Component... components) {
         KeyAdapter escapeListener = new KeyAdapter() {
             @Override
@@ -106,6 +126,14 @@ public class AuthenticationGUI {
         frame.requestFocusInWindow();
     }
     
+    /**
+     * Creates the individual player panels for player authentication, 
+     * including username, password fields, color selection, and status label.
+     * 
+     * @param title The title of the panel (either "Player 1" or "Player 2").
+     * @param readyFlag AtomicBoolean indicating if the player is ready.
+     * @return A JPanel containing the player's authentication components.
+    */
     private JPanel createPlayerPanel(String title,  AtomicBoolean readyFlag){
         JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
         panel.setBorder(BorderFactory.createTitledBorder(title));
@@ -193,18 +221,36 @@ public class AuthenticationGUI {
         return panel;
     }
     
+    /**
+     * Creates a text field with a placeholder for user input.
+     * 
+     * @param placeholder The placeholder text displayed in the text field.
+     * @return A JTextField with placeholder functionality.
+    */
     private JTextField createTextField(String placeholder) {
         JTextField textField = new JTextField();
         setPlaceholder(textField, placeholder);
         return textField;
     }
 
+    /**
+     * Creates a password field with a placeholder for user input.
+     * 
+     * @param placeholder The placeholder text displayed in the password field.
+     * @return A JPasswordField with placeholder functionality.
+    */
     private JPasswordField createPasswordField(String placeholder) {
         JPasswordField passwordField = new JPasswordField();
         setPlaceholder(passwordField, placeholder);
         return passwordField;
     }
 
+    /**
+     * Sets the placeholder functionality for text fields.
+     * 
+     * @param textField The JTextField to set the placeholder for.
+     * @param placeholder The placeholder text.
+    */
     private void setPlaceholder(JTextField textField, String placeholder) {
         textField.setText(placeholder);
         textField.setForeground(Color.GRAY);
@@ -227,6 +273,12 @@ public class AuthenticationGUI {
         });
     }
 
+    /**
+     * Sets the placeholder functionality for password fields.
+     * 
+     * @param passwordField The JPasswordField to set the placeholder for.
+     * @param placeholder The placeholder text.
+    */
     private void setPlaceholder(JPasswordField passwordField, String placeholder) {
         passwordField.setEchoChar((char) 0);
         passwordField.setText(placeholder);
@@ -252,6 +304,13 @@ public class AuthenticationGUI {
         });
     }
     
+    
+    /**
+     * Converts a string representing a color to its corresponding Color object.
+     * 
+     * @param colorName The name of the color.
+     * @return The corresponding Color object, or black if the color name is invalid.
+    */
     private Color getColorFromSelection(String colorName) {
         return switch (colorName.toLowerCase()) {
             case "red" -> Color.RED;
@@ -259,9 +318,13 @@ public class AuthenticationGUI {
             case "green" -> Color.GREEN;
             case "yellow" -> Color.YELLOW;
             default -> Color.BLACK;
-    };
-}
+        };
+    }
 
+    /**
+     * Checks if both players are ready. If both are ready, the game board 
+     * is initialized and the authentication window is closed.
+     */
     private void checkReady() {
         if (player1Ready.get() && player2Ready.get()) {                    
             if (player1 != null && player2 != null){

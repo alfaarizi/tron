@@ -9,7 +9,10 @@ import java.awt.Graphics;
 import java.util.Random;
 
 /**
- *
+ * The Bonus class represents a bonus item in the game that can appear on the game board.
+ * The bonus item is drawn with a specified color and can be randomly positioned on the board.
+ * The class ensures that the bonus does not overlap with other taken areas of the board.
+ * 
  * @author zizi
  */
 public class Bonus {
@@ -18,6 +21,13 @@ public class Bonus {
     private final Color color;
     private final Board board;
 
+    /**
+     * Constructs a Bonus object with the specified color and board.
+     * The position is randomly assigned within the draw method.
+     * 
+     * @param color The color of the bonus.
+     * @param board The board where the bonus will be placed.
+    */
     public Bonus(Color color, Board board) {
         this.color = color;
         this.board = board;
@@ -43,12 +53,24 @@ public class Bonus {
         return color;
     }
 
+    /**
+     * Draws the bonus on the game board at a random position.
+     * The position is recalculated every time this method is called to ensure
+     * the bonus does not overlap with any other taken area on the board.
+     * 
+     * @param g The Graphics object used to draw the bonus.
+    */
     public void draw(Graphics g) {
         randomPosition();
         g.setColor(this.color);
         g.fillRect(x, y, 10, 10);
     }
-
+    
+    /**
+     * Randomly assigns a valid position for the bonus on the board.
+     * This method ensures the bonus does not overlap with any taken area.
+     * The position is recalculated until an available area is found.
+    */
     public void randomPosition() {
         boolean notPossible = true;
 

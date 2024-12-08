@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
+ * Represents the game board for the Tron Battle game.
+ * Handles player movement, bonus handling, collision detection, and game rendering.
+ * 
  * @author zizi
  */
 public class Board extends JPanel implements ActionListener {
@@ -53,6 +55,16 @@ public class Board extends JPanel implements ActionListener {
     
     private boolean sessionSaved = false;
 
+    /**
+     * Constructs the game board with specified players, colors, and GUI.
+     * Initializes game state, players, and other components.
+     *
+     * @param gui The BoardGUI that controls the game interface.
+     * @param player1Entity The entity representing player 1.
+     * @param player1Color The color associated with player 1.
+     * @param player2Entity The entity representing player 2.
+     * @param player2Color The color associated with player 2.
+    */
     public Board(BoardGUI gui, PlayerEntity player1Entity, Color player1Color, PlayerEntity player2Entity, Color player2Color) {
         this.gui = gui;
         player1 = new Player(
@@ -88,6 +100,11 @@ public class Board extends JPanel implements ActionListener {
         graphics = new GraphicsImages("images/scoreboard.png", "images/logo.jpg");
     }
 
+    /**
+     * Paints the game board, rendering players, score, and other elements.
+     *
+     * @param g The Graphics object used for rendering.
+     */
     @Override
     public void paintComponent(Graphics g) {
         if (init) {
@@ -130,17 +147,22 @@ public class Board extends JPanel implements ActionListener {
             Movement movementPlayer2 = player2.getCurrentTron().getMovement();
             g.fillOval(movementPlayer2.getX() - 5, movementPlayer2.getY() - 5, movementPlayer2.getSpeed() + 10, movementPlayer2.getSpeed() + 10);
 
-            player1.getTrons().get(0).draw(g, 70, 200, this.player1, this.player1.getName() + " : ");
-            player1.getTrons().get(1).draw(g, 70, 400, this.player1, this.player1.getName() + " : ");
+            player1.getTrons().get(0).draw(g, this.player1);
+            player1.getTrons().get(1).draw(g, this.player1);
             
-            player2.getTrons().get(0).draw(g, 720, 200, this.player2, this.player2.getName() + " : ");
-            player2.getTrons().get(1).draw(g, 720, 400, this.player2, this.player2.getName() + " : ");
+            player2.getTrons().get(0).draw(g, this.player2);
+            player2.getTrons().get(1).draw(g, this.player2);
             
         }
 
         Toolkit.getDefaultToolkit().sync();
     }
 
+    /**
+     * Updates game state by moving players, checking collisions, and managing bonuses.
+     *
+     * @param e The ActionEvent triggered by the timer.
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (activateTheBonus) {
@@ -212,6 +234,15 @@ public class Board extends JPanel implements ActionListener {
         repaint();
     }
     
+    /**
+     * Resets a player's state (position, speed) after a death or game restart.
+     *
+     * @param player The player to reset.
+     * @param positions The starting positions for the player's trons.
+     * @param dx The horizontal speed of the player.
+     * @param dy The vertical speed of the player.
+     * @param speed The speed of the player.
+     */
     private void resetPlayer(Player player, int[][] positions, int dx, int dy, int speed) {
         for (int i = 0; i < player.getTrons().size(); i++) {
             Tron tron = player.getTrons().get(i);
@@ -220,6 +251,11 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Marks the areas occupied by the player's trail.
+     *
+     * @param player The player whose trail is to be marked.
+    */
     private void markTaken(Player player) {
         int width, height;
         boolean[][] targetTaken = player.equals(player1) ? player1Taken : player2Taken;
@@ -245,6 +281,12 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Checks if the player has collided with a wall or another player's trail.
+     *
+     * @param player The player to check for collisions.
+     * @return {@code true} if the player has died (collided), {@code false} otherwise.
+    */
     private boolean checkTaken(Player player) {
         int width, height;
         boolean[][] opponentTaken = player.equals(player1) ? player2Taken : player1Taken;
@@ -271,6 +313,12 @@ public class Board extends JPanel implements ActionListener {
         return false;
     }
 
+    /**
+     * Checks if the player has collected a bonus item.
+     *
+     * @param player The player to check for bonus collection.
+     * @return {@code true} if the player has collected a bonus, {@code false} otherwise.
+    */
     private boolean checkBonus(Player player) {
         int width, height;
 
@@ -295,11 +343,23 @@ public class Board extends JPanel implements ActionListener {
         return false;
     }
     
-    
+    /**
+     * Checks if the given coordinates (x, y) are occupied by either player's trail.
+     *
+     * @param x The x-coordinate to check.
+     * @param y The y-coordinate to check.
+     * @return {@code true} if the coordinates are occupied, {@code false} otherwise.
+    */
     public boolean getTaken(int x, int y) {
         return player1Taken[x][y] || player2Taken[x][y];
     }
-
+    
+    
+    /**
+     * Handles key press events for player movement and saving the session.
+     *
+     * @param e The KeyEvent object representing the key press.
+    */
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
         
@@ -311,6 +371,9 @@ public class Board extends JPanel implements ActionListener {
         
     }
     
+    /**
+     * Saves the current game session to the high scores database.
+     */
     private void saveSession() {
         timer.stop();
         this.gui.reset();
@@ -324,6 +387,13 @@ public class Board extends JPanel implements ActionListener {
         sessionSaved = true;
     }
     
+    /**
+     * Checks if a key press corresponds to a valid movement for the player.
+     *
+     * @param key The key code of the key pressed.
+     * @param player The player whose movement is being checked.
+     * @return {@code true} if the key press is a valid movement for the player, {@code false} otherwise.
+    */
     private boolean isPlayerMovementKey(int key, Player player) {
     Movement movement = player.getCurrentTron().getMovement();
     return key == movement.getUp() ||
@@ -332,6 +402,12 @@ public class Board extends JPanel implements ActionListener {
            key == movement.getRight();
     }
     
+    /**
+     * Processes the movement for a player based on the key press event.
+     *
+     * @param player The player whose movement is being processed.
+     * @param e The KeyEvent object representing the key press.
+    */
     private void processPlayerMovement(Player player, KeyEvent e) {
         Movement movement = player.getCurrentTron().getMovement();
         if (isValidMovement(movement, e)) {
@@ -340,6 +416,13 @@ public class Board extends JPanel implements ActionListener {
         movement.keyPressed(e);
     }
       
+    /**
+     * Checks if the current key press is a valid movement based on the player's current direction.
+     *
+     * @param movement The player's current movement object.
+     * @param e The KeyEvent object representing the key press.
+     * @return {@code true} if the movement is valid, {@code false} otherwise.
+    */
     private boolean isValidMovement(Movement movement, KeyEvent e) {
         int key = e.getKeyCode();
         if (

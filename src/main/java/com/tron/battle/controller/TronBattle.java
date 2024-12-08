@@ -14,7 +14,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 /**
- *
+ * The TronBattle class manages the game initialization, database connection,
+ * and displays the main menu GUI.
+ * 
+ * It initializes the game, connects to the high score database, and shows the menu.
+ * 
  * @author zizi
  */
 public class TronBattle extends GameEntity {
@@ -22,6 +26,9 @@ public class TronBattle extends GameEntity {
     private static HighScoreDB database;
     private final MenuGUI gui;
     
+    /**
+     * Constructs the TronBattle game, sets up the database, and displays the menu.
+    */
     public TronBattle() {       
         super("Tron", Date.valueOf(
                 ZonedDateTime.of(1982, 8, 9, 0, 0, 0, 0, ZoneId.of("UTC")).toLocalDate()
@@ -36,6 +43,12 @@ public class TronBattle extends GameEntity {
         this.gui = new MenuGUI();
     }    
     
+    /**
+     * Returns the high score database instance.
+     * 
+     * @return The database instance.
+     * @throws IllegalStateException If the database is not initialized.
+    */
     public static HighScoreDB getDatabase() {
         if (database == null) throw new IllegalStateException("database not initialized properly");
         return database;

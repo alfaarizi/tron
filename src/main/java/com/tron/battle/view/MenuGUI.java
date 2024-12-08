@@ -8,13 +8,19 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 
 /**
- *
+ * Represents the main menu GUI for the Tron game. 
+ * Provides options to start the game or exit the application.
+ * 
  * @author zizi
  */
 public class MenuGUI {
     private final JFrame frame;
     private final JButton startButton, exitButton;
     
+    /**
+     * Constructs the main menu window with Start and Exit buttons.
+     * Initializes the frame layout, buttons, and action listeners.
+    */
     public MenuGUI (){
         frame = new JFrame("Tron - Main Menu");
         frame.setLayout(null);

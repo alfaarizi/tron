@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- *
+ * Manages high score data in the database for a specified game
+ * Includes CRUD operation: inserting, retrieving, and updating player scores
+ * 
  * @author zizi
  */
 public class HighScoreDB {
@@ -38,6 +40,12 @@ public class HighScoreDB {
     private final Timestamp start_time;
     private Timestamp end_time;
     
+    /**
+     * Initializes the database connection and game-related information
+     * 
+     * @param game the game entity associated with high scores
+     * @throws SQLException if a database connection error occurs
+     */
     public HighScoreDB(GameEntity game) throws SQLException {
         Properties connectionProps = new Properties();
         connectionProps.put("user", "root");
@@ -54,6 +62,11 @@ public class HighScoreDB {
 
     }
     
+    /**
+     * Adds a high score for a player
+     * 
+     * @param highScore the high score entity to be added
+     */
     public void putHighScore(HighScoreEntity highScore) {
         try {
             insertPlayer(highScore.getPlayer());
@@ -64,10 +77,21 @@ public class HighScoreDB {
         }
     }
     
+    /**
+     * Retrieves the current high score of a player
+     * 
+     * @param highScore the high score entity of the player
+     * @return the player's current high score
+     */
     public int getHighScore(HighScoreEntity highScore) {
         return retrieveHighScoreFromLeaderboard(highScore);
     }
     
+    /**
+     * Retrieves the list of all high scores for the game
+     * 
+     * @return a list of high scores for the game
+     */
     public List<HighScoreEntity> getHighScores() {
         List<HighScoreEntity> highScores = new ArrayList<>();
         
@@ -96,6 +120,13 @@ public class HighScoreDB {
         return highScores;
     }
     
+    /**
+     * Retrieves a player by name and password
+     * 
+     * @param name the player's name
+     * @param password the player's plain password
+     * @return the player's entity if found and password matches, otherwise null
+     */
     public PlayerEntity getPlayer(String name, String password) {
         PlayerEntity player = null;
         
@@ -124,6 +155,12 @@ public class HighScoreDB {
         return player;
     }
     
+    /**
+     * Retrieves a player by name
+     * 
+     * @param name the player's name
+     * @return the player's entity if found, otherwise null
+     */
     public PlayerEntity getPlayer(String name) {
         PlayerEntity player = null;
         
@@ -148,6 +185,13 @@ public class HighScoreDB {
     }
     
     
+    /**
+     * Inserts a new game into the database if it does not already exists
+     * 
+     * @param game the game entity to be inserted
+     * @return the game id of the inserted game
+     * @throws SQLException if a database error occurs
+     */
     private int insertGame(GameEntity game) throws SQLException {
         int gameId;
         if ((gameId = retrieveGameId(game)) >= 0) return gameId;
@@ -168,6 +212,13 @@ public class HighScoreDB {
         return gameId;
     }
     
+    /**
+     * Inserts a new player into the database if it does not already exist
+     * 
+     * @param player the player entity to be inserted
+     * @return the player number of the inserted player
+     * @throws SQLException if a database error occurs
+     */
     private int insertPlayer(PlayerEntity player) throws SQLException {
         int playerNo;
         if ((playerNo = retrievePlayerNo(player)) >= 0) return playerNo;
@@ -189,6 +240,13 @@ public class HighScoreDB {
         return playerNo;
     }
     
+    /**
+     * Inserts a new session into the database for a player
+     * 
+     * @param highScore the high score entity associated with the session
+     * @return the session id of the inserted session
+     * @throws SQLException if a database error occurs
+     */
     private int insertSessions(HighScoreEntity highScore) throws SQLException {
         int sessionsid = -1;
         
@@ -220,6 +278,11 @@ public class HighScoreDB {
     }
     
     
+    /**
+     * Inserts or updates the leader board with the player's high score for the game
+     * @param highScore the high score entity to be inserted or updated
+     * @throws SQLException if a database error occurs
+     */
     private void insertLeaderboard(HighScoreEntity highScore) throws SQLException {
         int playerNo;
         if ((playerNo = retrievePlayerNo(highScore.getPlayer())) < 0) return;
@@ -254,6 +317,11 @@ public class HighScoreDB {
         }
     }
     
+    /**
+     * Retrieves the player number (id) based on the player's game and password hash
+     * @param player the player's entity
+     * @return the player number if found, otherwise -1
+     */
     private int retrievePlayerNo (PlayerEntity player) {
         int playerNo = -1;
         
@@ -272,6 +340,12 @@ public class HighScoreDB {
         return playerNo;
     }
     
+    /**
+     * Retrieves the game id based on the game's name
+     * 
+     * @param game the game entity
+     * @return the game id if found, otherwise -1
+     */
     private int retrieveGameId (GameEntity game) {
         int gameId = -1;
         
@@ -289,6 +363,12 @@ public class HighScoreDB {
         return gameId;
     }
     
+    /**
+     * Retrieves the high score from the sessions for a specific player and game.
+     * 
+     * @param highScore the high score entity
+     * @return the high score from the sessions if found, otherwise -1
+     */
     private int retrieveHighScoreFromSessions (HighScoreEntity highScore) {
         int highScoreFromSessions = -1;
         
@@ -309,6 +389,13 @@ public class HighScoreDB {
         return highScoreFromSessions;
     }
     
+    
+    /**
+     * Retrieves the high score from the leader board for a specific player and game.
+     * 
+     * @param highScore the high score entity
+     * @return the high score from the leader board if found, otherwise -1
+     */
     private int retrieveHighScoreFromLeaderboard (HighScoreEntity highScore) {
         String selectQuery = """
                              SELECT highscore FROM Leaderboard WHERE playerno=? AND gameid=?
